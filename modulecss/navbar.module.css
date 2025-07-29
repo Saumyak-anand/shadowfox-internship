@@ -1,0 +1,22 @@
+.underlineonhover {
+  position: relative; /* Essential for positioning the pseudo-element */
+  display: inline-block; /* Ensures the underline only covers the text */
+  overflow: hidden; /* Hides the initial state of the underline */
+}
+
+.underlineonhover::after {
+  content: "";
+  position: absolute;
+  width: 100%;
+  height: 2px; /* Thickness of the underline */
+  background-color: currentColor; /* Makes the underline match the text color */
+  bottom: 0;
+  left: 0;
+  transform: scaleX(0); /* Initially hidden (0% width) */
+  transform-origin: bottom left; /* Animation starts from the left */
+  transition: transform 0.3s ease-out; /* Smooth transition effect */
+}
+
+.underlineonhover:hover::after {
+  transform: scaleX(1); /* Expands to full width on hover */
+}
