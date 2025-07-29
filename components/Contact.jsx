@@ -1,31 +1,68 @@
 "use client";
+import { useState } from "react";
 import Swal from "sweetalert2";
 
 const Contact = () => {
-  async function handleSubmit(e) {
-    e.preventDefault();
-    const response = await fetch("https://api.web3forms.com/submit", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Accept: "application/json",
-      },
-      body: JSON.stringify({
-        access_key: "5332916a-ca12-4dad-9790-042a605879cb",
-        name: e.target.name.value,
-        email: e.target.email.value,
-        message: e.target.message.value,
-      }),
-    });
-    const result = await response.json();
-    if (result.success) {
+  // State to manage form input values
+  const [formData, setFormData] = useState({
+    name: "",
+    email: "",
+    message: "",
+  });
+
+  // Handle input changes and update the state
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setFormData((prevData) => ({
+      ...prevData,
+      [name]: value,
+    }));
+  };
+
+  // Handle form submission
+  const handleSubmit = async (e) => {
+    e.preventDefault(); // Prevent default form submission behavior
+
+    try {
+      const response = await fetch("https://api.web3forms.com/submit", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Accept: "application/json",
+        },
+        body: JSON.stringify({
+          access_key: "5332916a-ca12-4dad-9790-042a605879cb", // Your Web3Forms access key
+          ...formData, // Spread the form data
+        }),
+      });
+
+      const result = await response.json();
+
+      if (result.success) {
+        Swal.fire({
+          title: "Success!",
+          text: "Message sent successfully!",
+          icon: "success",
+        });
+        // Clear the form fields on successful submission
+        setFormData({ name: "", email: "", message: "" });
+      } else {
+        // Handle submission errors
+        Swal.fire({
+          title: "Error!",
+          text: result.message || "Something went wrong. Please try again.",
+          icon: "error",
+        });
+      }
+    } catch (error) {
+      console.error("Submission error:", error);
       Swal.fire({
-        title: "Success!",
-        text: "Message sent successfully!",
-        icon: "success",
+        title: "Error!",
+        text: "Could not send message. Please check your network connection.",
+        icon: "error",
       });
     }
-  }
+  };
 
   return (
     <section
@@ -49,6 +86,8 @@ const Contact = () => {
           <input
             name="name"
             type="text"
+            onChange={handleInputChange}
+            value={formData.name}
             placeholder="Your Name"
             className="form-input-field w-full px-6 py-4 bg-sky-300 rounded-xl border-2 border-sky-500 focus:outline-none focus:ring-2 focus:ring-sky-500 hover:bg-sky-400 placeholder-sky-700 text-xl md:text-2xl text-white focus:text-sky-800 hover:text-sky-800 transition duration-300 ease-in-out"
             required
@@ -56,12 +95,16 @@ const Contact = () => {
           <input
             name="email"
             type="email"
+            value={formData.email}
+            onChange={handleInputChange}
             placeholder="Your Email"
             className="form-input-field w-full px-6 py-4 bg-sky-300 rounded-xl border-2 border-sky-500 focus:outline-none focus:ring-2 focus:ring-sky-500 hover:bg-sky-400 placeholder-sky-700 text-xl md:text-2xl text-white focus:text-sky-800 hover:text-sky-800 transition duration-300 ease-in-out"
             required
           />
           <textarea
             name="message"
+            onChange={handleInputChange}
+            value={formData.message}
             placeholder="Your Message"
             className="form-input-field w-full px-6 py-4 bg-sky-300 rounded-xl border-2 border-sky-500 focus:outline-none focus:ring-2 focus:ring-sky-500 hover:bg-sky-400 placeholder-sky-700 text-xl md:text-2xl text-white focus:text-sky-800 hover:text-sky-800 transition duration-300 ease-in-out"
             rows="3"
