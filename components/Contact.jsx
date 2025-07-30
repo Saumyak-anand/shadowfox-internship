@@ -1,16 +1,26 @@
 "use client";
-import { useState } from "react";
+
+import React, { useState, useRef } from "react";
+import { gsap } from "gsap";
+import { useGSAP } from "@gsap/react";
+import { useRouter } from "next/navigation";
 import Swal from "sweetalert2";
 
 const Contact = () => {
-  // State to manage form input values
+  const router = useRouter();
+  const [isAnimatingOut, setIsAnimatingOut] = useState(false);
+
+  const contactSectionRef = useRef(null);
+  const headingRef = useRef(null);
+  const subheadingRef = useRef(null);
+  const formRef = useRef(null);
+
   const [formData, setFormData] = useState({
     name: "",
     email: "",
     message: "",
   });
 
-  // Handle input changes and update the state
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setFormData((prevData) => ({
@@ -19,67 +29,179 @@ const Contact = () => {
     }));
   };
 
-  // Handle form submission
   const handleSubmit = async (e) => {
-    e.preventDefault(); // Prevent default form submission behavior
+    e.preventDefault();
 
-    try {
-      const response = await fetch("https://api.web3forms.com/submit", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Accept: "application/json",
-        },
-        body: JSON.stringify({
-          access_key: "5332916a-ca12-4dad-9790-042a605879cb", // Your Web3Forms access key
-          ...formData, // Spread the form data
-        }),
-      });
+    gsap.to(formRef.current.children, {
+      opacity: 0,
+      y: 20,
+      stagger: 0.05,
+      duration: 0.3,
+      ease: "power2.in",
+      onComplete: async () => {
+        try {
+          const response = await fetch("https://api.web3forms.com/submit", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              Accept: "application/json",
+            },
+            body: JSON.stringify({
+              access_key: "5332916a-ca12-4dad-9790-042a605879cb",
+              ...formData,
+            }),
+          });
 
-      const result = await response.json();
+          const result = await response.json();
 
-      if (result.success) {
-        Swal.fire({
-          title: "Success!",
-          text: "Message sent successfully!",
-          icon: "success",
-        });
-        // Clear the form fields on successful submission
-        setFormData({ name: "", email: "", message: "" });
-      } else {
-        // Handle submission errors
-        Swal.fire({
-          title: "Error!",
-          text: result.message || "Something went wrong. Please try again.",
-          icon: "error",
-        });
+          if (result.success) {
+            Swal.fire({
+              title: "Success!",
+              text: "Message sent successfully!",
+              icon: "success",
+            });
+            setFormData({ name: "", email: "", message: "" });
+
+            gsap.fromTo(
+              formRef.current.children,
+              { opacity: 0, y: 20 },
+              {
+                opacity: 1,
+                y: 0,
+                stagger: 0.05,
+                duration: 0.3,
+                ease: "power2.out",
+              }
+            );
+          } else {
+            Swal.fire({
+              title: "Error!",
+              text: result.message || "Something went wrong. Please try again.",
+              icon: "error",
+            });
+            gsap.fromTo(
+              formRef.current.children,
+              { opacity: 0, y: 20 },
+              {
+                opacity: 1,
+                y: 0,
+                stagger: 0.05,
+                duration: 0.3,
+                ease: "power2.out",
+              }
+            );
+          }
+        } catch (error) {
+          console.error("Submission error:", error);
+          Swal.fire({
+            title: "Error!",
+            text: "Could not send message. Please check your network connection.",
+            icon: "error",
+          });
+          gsap.fromTo(
+            formRef.current.children,
+            { opacity: 0, y: 20 },
+            {
+              opacity: 1,
+              y: 0,
+              stagger: 0.05,
+              duration: 0.3,
+              ease: "power2.out",
+            }
+          );
+        }
+      },
+    });
+  };
+
+  useGSAP(
+    () => {
+      if (!isAnimatingOut) {
+        const tl = gsap.timeline({ defaults: { ease: "power3.out" } });
+
+        gsap.set(
+          [headingRef.current, subheadingRef.current, formRef.current.children],
+          { autoAlpha: 0 }
+        );
+
+        tl.to(contactSectionRef.current, { opacity: 1, duration: 0.8 });
+
+        tl.to(
+          headingRef.current,
+          { y: 0, autoAlpha: 1, duration: 0.7 },
+          "-=0.4"
+        )
+          .to(
+            subheadingRef.current,
+            { y: 0, autoAlpha: 1, duration: 0.6 },
+            "-=0.3"
+          )
+          .to(
+            formRef.current.children,
+            {
+              y: 0,
+              autoAlpha: 1,
+              stagger: 0.15,
+              duration: 0.5,
+            },
+            "-=0.2"
+          );
       }
-    } catch (error) {
-      console.error("Submission error:", error);
-      Swal.fire({
-        title: "Error!",
-        text: "Could not send message. Please check your network connection.",
-        icon: "error",
-      });
-    }
+    },
+    { scope: contactSectionRef, dependencies: [isAnimatingOut] }
+  );
+
+  const handleExitAnimation = (path) => {
+    setIsAnimatingOut(true);
+
+    const tl = gsap.timeline({ defaults: { ease: "power2.in" } });
+
+    tl.to(formRef.current.children, {
+      autoAlpha: 0,
+      y: -50,
+      stagger: 0.1,
+      duration: 0.4,
+    })
+      .to(subheadingRef.current, { autoAlpha: 0, y: -20, duration: 0.3 }, "<")
+      .to(headingRef.current, { autoAlpha: 0, y: -20, duration: 0.4 }, "<")
+      .to(
+        contactSectionRef.current,
+        {
+          opacity: 0,
+          duration: 0.5,
+          onComplete: () => {
+            router.push(path);
+          },
+        },
+        "-=0.2"
+      );
   };
 
   return (
     <section
+      ref={contactSectionRef}
       className="bg-sky-800 text-white
                  flex flex-col
                  py-20 px-4 sm:px-6 md:px-8 lg:px-12
                  min-h-screen w-screen"
+      style={{ opacity: 0 }}
     >
       <div className="flex flex-col items-center flex-grow justify-center w-full max-w-5xl mx-auto">
-        <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold mb-4 text-center contact-heading">
+        <h1
+          ref={headingRef}
+          className="text-4xl sm:text-5xl md:text-6xl font-bold mb-4 text-center contact-heading"
+        >
           Get In Touch
         </h1>
-        <p className="text-lg sm:text-xl md:text-2xl mb-12 text-center max-w-2xl contact-subheading">
+        <p
+          ref={subheadingRef}
+          className="text-lg sm:text-xl md:text-2xl mb-12 text-center max-w-2xl contact-subheading"
+        >
           Have a question or want to work together? Feel free to reach out!
         </p>
 
         <form
+          ref={formRef}
           onSubmit={handleSubmit}
           className="flex flex-col gap-6 w-full max-w-md mx-auto"
         >

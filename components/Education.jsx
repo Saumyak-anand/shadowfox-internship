@@ -1,5 +1,18 @@
+"use client";
+
+import React, { useRef, useState } from "react";
+import { gsap } from "gsap";
+import { useGSAP } from "@gsap/react";
+import { useRouter } from "next/navigation";
+
 const Education = () => {
-  // Define your education data
+  const router = useRouter();
+  const [isAnimatingOut, setIsAnimatingOut] = useState(false);
+
+  const educationSectionRef = useRef(null);
+  const headingRef = useRef(null);
+  const educationCardsContainerRef = useRef(null);
+
   const educationData = [
     {
       degree: "Bachelor of Technology in Computer Science",
@@ -21,24 +34,84 @@ const Education = () => {
     },
   ];
 
+  useGSAP(
+    () => {
+      if (!isAnimatingOut) {
+        const tl = gsap.timeline({ defaults: { ease: "power3.out" } });
+
+        tl.from(educationSectionRef.current, { opacity: 0, duration: 0.8 })
+          .from(
+            headingRef.current,
+            { y: -50, opacity: 0, duration: 0.7 },
+            "-=0.4"
+          )
+          .from(
+            educationCardsContainerRef.current.children,
+            {
+              y: 50,
+              opacity: 0,
+              stagger: 0.2,
+              duration: 0.6,
+              scale: 0.95,
+            },
+            "-=0.3"
+          );
+      }
+    },
+    { scope: educationSectionRef, dependencies: [isAnimatingOut] }
+  );
+
+  const handleExitAnimation = (path) => {
+    setIsAnimatingOut(true);
+
+    const tl = gsap.timeline({ defaults: { ease: "power2.in" } });
+
+    if (educationCardsContainerRef.current) {
+      tl.to(educationCardsContainerRef.current.children, {
+        opacity: 0,
+        y: -50,
+        stagger: 0.1,
+        duration: 0.4,
+        scale: 0.9,
+      });
+    }
+
+    tl.to(headingRef.current, { opacity: 0, y: -20, duration: 0.4 }, "<").to(
+      educationSectionRef.current,
+      {
+        opacity: 0,
+        duration: 0.5,
+        onComplete: () => {
+          router.push(path);
+        },
+      },
+      "-=0.2"
+    );
+  };
+
   return (
     <section
-      id="education" // Important: ID for Navbar smooth scrolling
+      id="education"
+      ref={educationSectionRef}
       className="bg-gray-200 flex flex-col items-center justify-center
                  min-h-screen w-screen py-16 mt-3 px-4 sm:px-6 md:px-8 lg:px-12
-                 gap-y-12 /* Consistent spacing between heading and content */"
+                 gap-y-12"
     >
       <h1
+        ref={headingRef}
         className="text-5xl sm:text-6xl md:text-7xl text-indigo-500 font-bold
                    text-center education-heading"
       >
         My Education
       </h1>
 
-      <div className="flex flex-col items-center gap-8 w-full max-w-5xl">
+      <div
+        ref={educationCardsContainerRef}
+        className="flex flex-col items-center gap-8 w-full max-w-5xl"
+      >
         {educationData.map((edu, index) => (
           <div
-            key={index} // Using index as key is okay for static lists
+            key={index}
             className="education-card bg-white p-6 sm:p-8 rounded-xl shadow-lg
                        w-full transform transition-transform duration-300 hover:scale-[1.01]
                        flex flex-col md:flex-row items-start md:items-center gap-4"
