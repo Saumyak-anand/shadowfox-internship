@@ -1,3 +1,4 @@
+// components/About.jsx
 "use client";
 
 import React, { useRef, useState } from "react";
@@ -19,8 +20,16 @@ const About = () => {
   const certsContainerRef = useRef(null);
   const textContainerRef = useRef(null);
   const Certificates = [
-    { src: Cert1, alt: "Certificate 1" },
-    { src: Cert2, alt: "Certificate 2" },
+    {
+      src: Cert1,
+      alt: "Certificate 1",
+      link: "https://coursera.org/share/661a2277ded93cc03ba54ba018361918",
+    },
+    {
+      src: Cert2,
+      alt: "Certificate 2",
+      link: "https://coursera.org/share/e4fa3d0bbfdeb822f63731013d041f53",
+    },
   ];
 
   useGSAP(
@@ -102,7 +111,7 @@ const About = () => {
     >
       <h1
         ref={headingRef}
-        className="text-7xl text-indigo-500 font-bold mb-10 about-heading"
+        className="text-5xl text-indigo-500 font-bold pt-5 mb-10 about-heading"
       >
         About Me
       </h1>
@@ -113,21 +122,25 @@ const About = () => {
         >
           {Certificates.map((cert, index) => {
             return (
-              <Image
-                key={index}
-                src={cert.src}
-                alt={cert.alt}
-                className="w-64 h-auto object-contain rounded-xl shadow-lg
-                           sm:w-80 md:w-96 lg:w-[450px] about-image"
-              />
+              <a href={cert.link} target="_blank">
+                <Image
+                  key={index}
+                  src={cert.src}
+                  alt={cert.alt}
+                  className="w-64 h-auto object-contain rounded-xl shadow-lg
+                                   sm:w-80 md:w-96 lg:w-[450px] about-image"
+                />
+              </a>
             );
           })}
         </div>
         <div
           ref={textContainerRef}
-          className="flex-1 text-base md:text-xl lg:text-2xl flex flex-col justify-between gap-4 about-text-container text-center md:text-left text-indigo-500"
+          className="flex-1 text-base md:text-xl lg:text-2xl flex flex-col justify-between gap-4 about-text-container text-indigo-500"
+          // Removed previous alignment classes here as individual paragraphs will handle alignment
         >
-          <p>
+          <p className="text-justify">
+            {" "}
             Hello! I'm {""}
             <span className="font-bold text-indigo-800">Saumyak</span>, a
             dedicated web developer with a knack for building beautiful and
@@ -135,14 +148,16 @@ const About = () => {
             development began with a curiosity for how things work online, and
             it quickly blossomed into a passion for creating them.
           </p>
-          <p>
+          <p className="text-justify">
+            {" "}
             I specialize in front-end development, primarily working with
             React.js, Tailwind CSS, and modern JavaScript. I love bringing ideas
             to life through clean, efficient, and user-friendly code. I am a
             keen observer of UI/UX designs & I love to make projects which are
             appealing to the eye.
           </p>
-          <p>
+          <p className="text-justify">
+            {" "}
             When I'm not coding, you can find me exploring new technologies or
             enjoying a good book. I'm always eager to learn and grow, and I
             thrive in collaborative environments.
