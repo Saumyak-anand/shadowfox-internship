@@ -3,6 +3,8 @@
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import styles from "@/modulecss/navbar.module.css";
+import Image from "next/image";
+import mainlogo from "@/assets/mainlogo.png";
 
 const Navbar = () => {
   // State to manage the visibility of the mobile menu
@@ -43,13 +45,22 @@ const Navbar = () => {
   return (
     <nav
       className="fixed top-0 left-0 w-full z-50 bg-sky-200 shadow-md
-                 flex items-center justify-between px-4 py-3 sm:px-6 md:px-8 lg:px-12"
+                   flex items-center justify-between px-4 py-3 sm:px-6 md:px-8 lg:px-12"
     >
       <Link
         href="/"
-        className="flex flex-col items-center sm:flex-row sm:space-x-2 text-indigo-700 hover:text-indigo-700 transition-colors duration-300"
+        // Removed flex-col and added flex and items-center for horizontal alignment
+        // Adjusted gap and text size for responsiveness
+        className="flex items-center gap-2 sm:gap-3 text-indigo-700 hover:text-indigo-700 transition-colors duration-300"
       >
-        <h1 className="text-3xl sm:text-5xl font-extrabold navbar-logo-main">
+        {/* Adjusted image sizing for better responsiveness */}
+        <Image
+          src={mainlogo}
+          alt="Main Logo"
+          className="w-8 h-8 sm:w-10 sm:h-10 object-contain" // Smaller on small, larger on sm+
+        />
+        <h1 className="text-xl sm:text-2xl md:text-3xl font-extrabold navbar-logo-main whitespace-nowrap">
+          {/* Added whitespace-nowrap to prevent text wrapping */}
           Portfolio
         </h1>
       </Link>
@@ -86,8 +97,8 @@ const Navbar = () => {
               <Link
                 href={link.path}
                 className={`hover:text-indigo-700 transition-colors duration-300
-                                ${styles.underlineonhover}
-                                `}
+                                 ${styles.underlineonhover}
+                                 `}
               >
                 {link.name}
               </Link>

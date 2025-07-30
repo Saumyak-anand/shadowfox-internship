@@ -23,11 +23,11 @@ const Skills = () => {
   return (
     <section
       className="bg-gray-200 flex flex-col items-center justify-center
-                 min-h-screen w-screen py-16 px-4 sm:px-6 md:px-8 lg:px-12" // Responsive padding and min-height
+                 min-h-screen w-screen py-16 px-4 sm:px-6 md:px-8 lg:px-12"
     >
       <h1
         className="text-5xl sm:text-6xl md:text-7xl text-indigo-500 font-bold
-                   mb-12 text-center skills-heading" // Responsive font size, centered text
+                   mb-12 text-center skills-heading"
       >
         My Skills
       </h1>
@@ -39,8 +39,8 @@ const Skills = () => {
         {/* Responsive grid */}
         {skillData.map((skill, index) => (
           <SkillsTemp
-            key={index} // Using index as key is okay if list is static and items don't reorder
-            className="skill-box-item" // Apply class for GSAP animation
+            key={index}
+            className="skill-box-item"
             src={skill.src}
             alt={skill.alt}
           />
